@@ -22,7 +22,7 @@ const mailOptions = {
 
 // Use the transporter.sendMail method to send the email
 function sendMail() {
-    console.log(`transporter ${transporter}`)
+    console.log(`transporte ${transporter}`)
     console.log(`env variables sender : ${process.env.SENDER_MAIL_ADDRESS} to : ${process.env.RECEIVER_MAIL_ADDRESS} user : ${process.env.SENDER_MAIL_ADDRESS} and pass : ${process.env.PASSWORD}`)
     transporter.sendMail(mailOptions, function (error, info) {
         console.log(`error ${error}`)
