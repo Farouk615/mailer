@@ -1,6 +1,19 @@
 const nodemailer = require('nodemailer');
 const http = require('http');
 require('dotenv').config();
+function checkInternetConnectivity() {
+    http.get('http://www.google.com', (res) => {
+        if (res.statusCode === 200) {
+            console.log('Internet is reachable.');
+        } else {
+            console.log('Internet is not reachable.');
+        }
+    }).on('error', (err) => {
+        console.error('Error checking internet connectivity:', err.message);
+    });
+}
+
+// Call the function to check internet connectivity
 
 console.log("inside the mailer version 2")
 // Create a transporter object with Gmail and OAuth2 credentials
@@ -44,6 +57,7 @@ const server = http.createServer((req, res) => {
         res.end();
     }
     if (req.method === 'POST' && req.url === '/send-email') {
+        checkInternetConnectivity();
         res.setHeader('Access-Control-Allow-Origin', '*')
         let body = '';
         req.on('data', (chunk) => {
