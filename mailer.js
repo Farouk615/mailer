@@ -1,8 +1,8 @@
-const nodemailer = require  ('nodemailer');
+const nodemailer = require('nodemailer');
 const http = require('http');
 require('dotenv').config();
 
-console.log("inside the mailer")
+console.log("inside the mailer version 2")
 // Create a transporter object with Gmail and OAuth2 credentials
 const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -21,7 +21,8 @@ const mailOptions = {
 };
 
 // Use the transporter.sendMail method to send the email
-function sendMail(){
+function sendMail() {
+    console.log(`env variables sender : ${process.env.SENDER_MAIL_ADDRESS} to : ${process.env.RECEIVER_MAIL_ADDRESS} user : ${process.env.SENDER_MAIL_ADDRESS} and pass : ${process.env.PASSWORD}`)
     transporter.sendMail(mailOptions, function (error, info) {
         console.log(`error ${error}`)
         if (error) {
@@ -49,14 +50,14 @@ const server = http.createServer((req, res) => {
             body += chunk;
         });
         req.on('end', async () => {
-            const { fname, lname, message } = JSON.parse(body);
-            mailOptions.subject=fname+lname;
-            mailOptions.text=message;
+            const {fname, lname, message} = JSON.parse(body);
+            mailOptions.subject = fname + lname;
+            mailOptions.text = message;
             sendMail()
             res.setHeader('Access-Control-Allow-Origin', '*')
             // Create a Nodemailer transporter and send the email
             // (Configure SMTP settings, subject, body, etc.)
-            res.writeHead(200, { 'Content-Type': 'text/plain' });
+            res.writeHead(200, {'Content-Type': 'text/plain'});
             res.end('Email sent successfully');
         });
     }
