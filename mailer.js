@@ -29,7 +29,7 @@ const transporter = nodemailer.createTransport({
 const mailOptions = {
     from: process.env.SENDER_MAIL_ADDRESS,
     to: process.env.RECEIVER_MAIL_ADDRESS,
-    subject: '',
+    subject: 'work',
     text: ''
 };
 
