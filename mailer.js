@@ -2,21 +2,6 @@ const nodemailer = require('nodemailer');
 const http = require('http');
 require('dotenv').config();
 
-function checkInternetConnectivity() {
-    http.get('http://www.google.com', (res) => {
-        if (res.statusCode === 200) {
-            console.log('Internet is reachable.');
-        } else {
-            console.log('Internet is not reachable.');
-        }
-    }).on('error', (err) => {
-        console.error('Error checking internet connectivity:', err.message);
-    });
-}
-
-// Call the function to check internet connectivity
-
-console.log("inside the mailer version 2")
 // Create a transporter object with Gmail and OAuth2 credentials
 const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -37,12 +22,9 @@ const mailOptions = {
 
 // Use the transporter.sendMail method to send the email
 async function sendMail() {
-    console.log(`transporte ${transporter}`)
     let isSentCorrectly = true;
     await transporter.sendMail(mailOptions).catch((error) => {
-        console.log(`error ${error}`)
         isSentCorrectly = !error;
-        console.log(`isSentCorrectly value ${isSentCorrectly}`)
     })
     return isSentCorrectly;
 }
