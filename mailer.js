@@ -36,17 +36,15 @@ const mailOptions = {
 };
 
 // Use the transporter.sendMail method to send the email
-function sendMail() {
+async function sendMail() {
     console.log(`transporte ${transporter}`)
-    console.log(`env variables sender : ${process.env.SENDER_MAIL_ADDRESS} to : ${process.env.RECEIVER_MAIL_ADDRESS} user : ${process.env.SENDER_MAIL_ADDRESS} and pass : ${process.env.PASSWORD}`)
-    transporter.sendMail(mailOptions, function (error, info) {
+    let isSentCorrectly = true;
+    await transporter.sendMail(mailOptions).catch((error) => {
         console.log(`error ${error}`)
-        if (error) {
-            console.log(error);
-        } else {
-            console.log('Email sent: ' + info.response);
-        }
-    });
+        isSentCorrectly = !error;
+        console.log(`isSentCorrectly value ${isSentCorrectly}`)
+    })
+    return isSentCorrectly;
 }
 
 const server = http.createServer(async (req, res) => {
@@ -59,21 +57,8 @@ const server = http.createServer(async (req, res) => {
         res.end();
     }
     if (req.method === 'POST' && req.url === '/send-email') {
-        await new Promise((resolve, reject) => {
-            // verify connection configuration
-            transporter.verify(function (error, success) {
-                if (error) {
-                    console.log(`server is not ready ${error}`);
-                    reject(error);
-                } else {
-                    console.log("Server is ready to take our messages");
-                    resolve(success);
-                }
-            });
-        }).then(r => () => {
-        });
-        checkInternetConnectivity();
         res.setHeader('Access-Control-Allow-Origin', '*')
+        res.setHeader('Content-Type', 'application/json');
         let body = '';
         req.on('data', (chunk) => {
             console.log(`chunk ${chunk}`)
@@ -83,17 +68,25 @@ const server = http.createServer(async (req, res) => {
             const {fname, lname, message} = JSON.parse(body);
             mailOptions.subject = fname + lname;
             mailOptions.text = message;
-            sendMail()
-            res.setHeader('Access-Control-Allow-Origin', '*')
-            // Create a Nodemailer transporter and send the email
-            // (Configure SMTP settings, subject, body, etc.)
-            res.writeHead(200, {'Content-Type': 'text/plain'});
-            res.end('Email sent successfully');
+            if (await sendMail() === true) {
+                res.statusCode = 200
+                const customResponse = {
+                    code: 200,
+                    message: 'Email sent successfully'
+                };
+                res.end(JSON.stringify(customResponse));
+            } else {
+                res.statusCode = 400
+                const customResponse = {
+                    code: 400,
+                    message: 'Error : email not sent'
+                };
+                res.end(JSON.stringify(customResponse));
+            }
         });
     }
 });
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
 });
