@@ -25,19 +25,7 @@ const transporter = nodemailer.createTransport({
         pass: process.env.PASSWORD
     }
 });
-new Promise((resolve, reject) => {
-    // verify connection configuration
-    transporter.verify(function (error, success) {
-        if (error) {
-            console.log(`server is not ready ${error}`);
-            reject(error);
-        } else {
-            console.log("Server is ready to take our messages");
-            resolve(success);
-        }
-    });
-}).then(r => () => {
-});
+
 
 // Create a mailOptions object with your email details
 const mailOptions = {
@@ -61,7 +49,7 @@ function sendMail() {
     });
 }
 
-const server = http.createServer((req, res) => {
+const server = http.createServer(async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS'); // Allow POST and OPTIONS requests
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type'); // Allow specific headers
@@ -71,6 +59,19 @@ const server = http.createServer((req, res) => {
         res.end();
     }
     if (req.method === 'POST' && req.url === '/send-email') {
+        await new Promise((resolve, reject) => {
+            // verify connection configuration
+            transporter.verify(function (error, success) {
+                if (error) {
+                    console.log(`server is not ready ${error}`);
+                    reject(error);
+                } else {
+                    console.log("Server is ready to take our messages");
+                    resolve(success);
+                }
+            });
+        }).then(r => () => {
+        });
         checkInternetConnectivity();
         res.setHeader('Access-Control-Allow-Origin', '*')
         let body = '';
