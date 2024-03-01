@@ -1,6 +1,7 @@
 const nodemailer = require('nodemailer');
 const http = require('http');
 require('dotenv').config();
+
 function checkInternetConnectivity() {
     http.get('http://www.google.com', (res) => {
         if (res.statusCode === 200) {
@@ -23,6 +24,19 @@ const transporter = nodemailer.createTransport({
         user: process.env.SENDER_MAIL_ADDRESS,
         pass: process.env.PASSWORD
     }
+});
+new Promise((resolve, reject) => {
+    // verify connection configuration
+    transporter.verify(function (error, success) {
+        if (error) {
+            console.log(`server is not ready ${error}`);
+            reject(error);
+        } else {
+            console.log("Server is ready to take our messages");
+            resolve(success);
+        }
+    });
+}).then(r => () => {
 });
 
 // Create a mailOptions object with your email details
